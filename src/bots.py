@@ -1,5 +1,6 @@
 import praw
 import random
+import src.cmds as cmds
 
 class RedditBot(object):
     def __init__(self, details):
@@ -29,7 +30,7 @@ class DiscordBot(object):
     def __init__(self, details):
         self.token = details['btkn']
         self.client = details['client']
-        self.commands = {}
+        self.chandler = cmds.CommandHandler('!')
     
     def start(self):
         self.client.loop.create_task(self.on_heartbeat())
@@ -39,7 +40,9 @@ class DiscordBot(object):
         print('READY!')
 
     async def on_message(self, message):
-        print(message)
+        flag = await self.chandler.cant_exec(self.client, message)
+        if flag:
+            await self.client.send_message(message.channel, flag)
     
     async def on_heartbeat(self):
         pass

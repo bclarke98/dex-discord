@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 import sys
-import check
+import check as check
 if check.check_bot_on():
     print('Bot already running!')
     sys.exit()
 
 import os
 import discord
-import bots
+import src.bots as bots
 
 VERSION = '1.0.0'
 
@@ -15,10 +15,10 @@ class DexManager:
     def __init__(self, client):
         self.details = {'client':client}
         try:
-            with open('logins.dat', 'r') as lr:
+            with open('data/logins.dat', 'r') as lr:
                 self.details['btkn'], self.details['rcid'], self.details['rcs'], self.details['rpw'] = lr.read().strip().split('\n')
         except IOError as ex:
-            print('"logins.dat" file not found. Please create one formatted as:')
+            print('"data/logins.dat" file not found. Please create one formatted as:')
             print('Discord Bot Token')
             print('Reddit Client ID')
             print('Reddit Client Secret')
