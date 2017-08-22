@@ -34,6 +34,7 @@ class CommandHandler(object):
             'yt':cmdyoutube.CommandYoutube(),
             'syt':cmdsearchyoutube.CommandSearchYoutube(),
             'ri':cmdredditimg.CommandRedditImage(),
+            'ayt':cmdaliasyoutube.CommandAliasYoutube(),
         }
  
     async def check_exec(self, client, reddit, message):
@@ -46,7 +47,10 @@ class CommandHandler(object):
                 cmd = self.cmds[content.lower().split(' ')[0]]
                 args = [] if len(content.split(' ')) == 1 else content.split(' ')[1:]
                 if len(args) < len(cmd.args):
-                    return 'Wrong amount of parameters.'
+                    if isinstance(cmd, cmdyoutube.CommandYoutube) and not content.lower().split(' ')[0] == 'yt':
+                        pass
+                    else:
+                        return 'Wrong amount of parameters.'
                 data = {
                     'msg':message,
                     'author':message.author,
@@ -55,7 +59,8 @@ class CommandHandler(object):
                     'bot':client,
                     'reddit':reddit,
                     'voice':self.bot_voice,
-                    'player':self.audio_player
+                    'player':self.audio_player,
+                    'cmds':self.cmds
                 }
                 upermission = 0
                 for r in data['author'].roles:
