@@ -32,6 +32,7 @@ class CommandHandler(object):
             'freeze':cmdfreeze.CommandFreeze(),
             'ar':cmdaudiostop.CommandAudioStop(),
             'yt':cmdyoutube.CommandYoutube(),
+            'syt':cmdsearchyoutube.CommandSearchYoutube(),
         }
  
     async def check_exec(self, client, reddit, message):
