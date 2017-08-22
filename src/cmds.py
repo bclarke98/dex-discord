@@ -33,9 +33,12 @@ class CommandHandler(object):
             'ar':cmdaudiostop.CommandAudioStop(),
             'yt':cmdyoutube.CommandYoutube(),
             'syt':cmdsearchyoutube.CommandSearchYoutube(),
+            'ri':cmdredditimg.CommandRedditImage(),
         }
  
     async def check_exec(self, client, reddit, message):
+        if message.author.bot:
+            return False
         if message.content[0] == self.prefix:
             await client.delete_message(message)
             content = message.content[1:]
@@ -68,13 +71,14 @@ class CommandHandler(object):
                 return 'Permission Denied.'
             except KeyError as err:
                 if 'help' in content.split(' ')[0]:
+                    s = ''
                     for n in sorted(self.cmds):
                         c = self.cmds[n]
-                        s = '- %s%s ' % (self.prefix, c.name)
+                        s += '- %s%s ' % (self.prefix, c.name)
                         for a in c.args:
                             s += '[%s] ' % a
-                        s += ' - ' + c.desc
-                        await client.send_message(message.channel, s)
+                        s += ' - ' + c.desc + '\n'
+                    await client.send_message(message.channel, s)
                     return False
                 return 'Command not found.'
 

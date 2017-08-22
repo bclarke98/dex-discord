@@ -9,7 +9,7 @@ class CommandWipe(Command):
             lim = 1 if len(data['args']) == 0 else int(data['args'][0])
             async for msg in data['bot'].logs_from(data['channel'], limit=lim):
                 await data['bot'].delete_message(msg)
-            await send_message('Removed %d message(s).' % lim, data, 5)
+            await send_message('Removed %d message(s).' % lim, data)
         except:
             pass
         return await super().on_exec(data)

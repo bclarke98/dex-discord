@@ -72,6 +72,7 @@ class Log(object):
 
 class DiscordBot(object):
     def __init__(self, details):
+        self.version = details['version']
         self.token = details['btkn']
         self.client = details['client']
         self.chandler = cmds.CommandHandler('!')
@@ -102,7 +103,13 @@ class DiscordBot(object):
             if int(self.uptime) % 30 == 0:
                 self.logger.save_stats()
                 self.logger.save_logs()
+            self.save_details()
             await asyncio.sleep(self.interval)
+
+    def save_details(self):
+        with open('details.dat', 'w') as dw:
+            dw.write('Version|%s\n' % self.version)
+            dw.write('Uptime|%s' % uptime_str(self.uptime))
 
 
 def est_time():
@@ -112,3 +119,5 @@ def est_time():
     return str(hr) + utcn[2:]
 
 
+def uptime_str(uptime):
+    return 'Days: ' + str(int(uptime // 86400)) + '  Hours: ' + str(int(uptime // 3600) % 24) + '  Minutes: ' + str(int(uptime / 60) % 60) + '  Seconds: ' + str(int(uptime) % 60)

@@ -12,6 +12,6 @@ class CommandClean(Command):
                     await data['bot'].delete_message(msg)
                 except:
                     pass  # prevents crashes if the message was already deleted
-        await send_message('Cleaned bot messages from past %d messages.' % lim, data, 5)
+        await send_message('Cleaned bot messages from past %d messages.' % lim, data)
         return await super().on_exec(data)
 

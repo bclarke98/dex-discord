@@ -13,7 +13,7 @@ VERSION = '1.0.0'
 
 class DexManager:
     def __init__(self, client):
-        self.details = {'client':client}
+        self.details = {'client':client, 'version':VERSION}
         try:
             with open('data/logins.dat', 'r') as lr:
                 self.details['btkn'], self.details['rcid'], self.details['rcs'], self.details['rpw'] = lr.read().strip().split('\n')

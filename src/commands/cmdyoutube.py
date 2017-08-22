@@ -2,7 +2,7 @@ from src.commands.basecmd import *
 
 class CommandYoutube(Command):
     def __init__(self):
-        super().__init__('yt', 'plays linked youtube video', permission=0)
+        super().__init__('yt', 'plays linked youtube video', args=['link'], permission=0)
 
     async def on_exec(self, data):
         await reset_audio(data)

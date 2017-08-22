@@ -12,13 +12,13 @@ from PIL import ImageDraw
 def spongebob(s):
     r, i = '', 0
     for c in s:
-        r, i = r + c.lower() if i % 2 == 0 else r + c.upper(), i if c == ' ' else i + 1
+        r, i = r + c.lower() if i % 2 == 0 else r + c.upper(), i + 1 if c.isalpha() else i
     return r
 
 
 class CommandSpongebob(Command):
     def __init__(self):
-        super().__init__('sponge', 'tHiS cOmMaNd iS sElF eXpLaNiToRy', permission=0)
+        super().__init__('sponge', 'tHiS cOmMaNd iS sElF eXpLaNiToRy', args=['tExT tO uSe'], permission=0)
 
     async def on_exec(self, data):
         img = Image.open('res/sb.png')
