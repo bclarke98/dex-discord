@@ -1,6 +1,9 @@
 import praw
 import random
+import asyncio
+import datetime
 import src.cmds as cmds
+
 
 class RedditBot(object):
     def __init__(self, details):
@@ -26,11 +29,56 @@ class RedditBot(object):
         return data[1]
 
 
+class Log(object):
+    def __init__(self):
+        self.data = self.load_stats()
+        self.chatlogs = []
+
+    def load_stats(self):
+        data = {}
+        try:
+            with open('data/stats.dat', 'r') as fr:
+                for ln in fr.read().split('\n'):
+                    spl = ln.strip().split(';')
+                    if len(spl) == 3:
+                        data[spl[0]] = [int(spl[1]), int(spl[2])] # [msgs, cmds]
+        except IOError as ioe:
+            print('"data/stats.dat" not found... creating new file.')
+            with open('data/stats.dat', 'w') as fw:
+                fw.write('')
+        return data
+
+    def update_stats(user, cmd=False):
+        try:
+            self.data[user][0] += 1
+            self.data[user][1] += 1 if cmd else 0
+        except KeyError as ke:
+            self.data[user] = [1, 1 if cmd else 0]
+
+    def save_stats(self):
+        with open('data/stats.dat', 'w') as fw:
+            for n in self.data:
+                fw.write('%s;%d;%d\n' % (n, self.data[n][0], self.data[n][1]))
+
+    def add_chat_log(self, message):
+        self.chatlogs.append('[%s][%s]: %s' % (est_time(), message.author.name, message.content))
+
+    def save_logs(self):
+        with open('data/logs.dat', 'a') as fw:
+            for l in self.chatlogs:
+                fw.write('%s\n' % self.chatlogs.pop(0))
+
+
+
 class DiscordBot(object):
     def __init__(self, details):
         self.token = details['btkn']
         self.client = details['client']
         self.chandler = cmds.CommandHandler('!')
+        self.reddit = RedditBot(details)
+        self.logger = Log()
+        self.uptime = 0      # uptime in seconds
+        self.interval = 1.0  # tick rate in seconds
     
     def start(self):
         self.client.loop.create_task(self.on_heartbeat())
@@ -40,11 +88,27 @@ class DiscordBot(object):
         print('READY!')
 
     async def on_message(self, message):
-        flag = await self.chandler.cant_exec(self.client, message)
+        if not message.author.bot:
+            self.logger.add_chat_log(message)
+        flag = await self.chandler.check_exec(self.client, self.reddit, message)
         if flag:
             await self.client.send_message(message.channel, flag)
     
     async def on_heartbeat(self):
-        pass
+        await self.client.wait_until_ready()
+        while not self.client.is_closed:
+            self.uptime += self.interval
+            await self.chandler.on_heartbeat(self.uptime, self.interval)
+            if int(self.uptime) % 30 == 0:
+                self.logger.save_stats()
+                self.logger.save_logs()
+            await asyncio.sleep(self.interval)
+
+
+def est_time():
+    utcn = str(datetime.datetime.utcnow())[11:-7]
+    hr = int(utcn[:2])
+    hr = hr - 4 if (hr - 4 >= 0) else 24 + (hr - 4)
+    return str(hr) + utcn[2:]
 
 

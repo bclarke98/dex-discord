@@ -1,51 +1,7 @@
-import asyncio
-from abc import ABC, abstractmethod
+import src.empty as empty
+from src.commands import *
 
 
-async def send_message(s, channel, client, duration=3):
-    m = await client.send_message(channel, s)
-    await asyncio.sleep(duration)
-    await client.delete_message(m)
-
-
-class Command(ABC):
-    def __init__(self, name, desc, args=[], permission=0):
-        self.name = name
-        self.desc = desc
-        self.args = args
-        self.permission = permission
-
-    @abstractmethod
-    async def on_exec(self, data):
-        pass
-
-
-class CommandTest(Command):
-    def __init__(self):
-        super().__init__('test', 'test command')
-    
-    async def on_exec(self, data):
-        await super().on_exec(data)
-        await send_message('Test command worked', data['channel'], data['bot'])
-
-
-class CommandClean(Command):
-    def __init__(self):
-        super().__init__('clean', 'cleans commands and bot responses from chat', permission=2)
-
-    async def on_exec(self, data):
-        await super().on_exec(data)
-        lim = 10 if len(data['args']) == 0 else int(data['args'][0])
-        async for msg in data['bot'].logs_from(data['channel'], limit=lim):
-            if 'dex-bot' in str(msg.author):
-                try:
-                    await data['bot'].delete_message(msg)
-                except:
-                    pass  # prevents crashes if the message was already deleted
-        await send_message('Cleaned bot messages from past %d messages.' % lim, data['channel'], data['bot'], 5)
-        
-
- 
 class CommandHandler(object):
     def __init__(self, prefix):
         self.permissions = [
@@ -66,18 +22,24 @@ class CommandHandler(object):
             print('[2]: Moderator')
             print('[3]: Administrator')
         self.prefix = prefix
-        self.bot_voice = None
+        self.bot_voice = empty.EmptyAudio()
+        self.audio_player = empty.EmptyAudio()
         self.cmds = {
-            'test':CommandTest(),
-            'clean':CommandClean()
+            'test':cmdtest.CommandTest(),
+            'clean':cmdclean.CommandClean(),
+            'wipe':cmdwipe.CommandWipe(),
+            'sponge':cmdspongebob.CommandSpongebob(),
+            'freeze':cmdfreeze.CommandFreeze(),
+            'ar':cmdaudiostop.CommandAudioStop(),
+            'yt':cmdyoutube.CommandYoutube(),
         }
  
-    async def cant_exec(self, client, message):
+    async def check_exec(self, client, reddit, message):
         if message.content[0] == self.prefix:
             await client.delete_message(message)
-            content = message.content[1:].lower()
+            content = message.content[1:]
             try:
-                cmd = self.cmds[content.split(' ')[0]]
+                cmd = self.cmds[content.lower().split(' ')[0]]
                 args = [] if len(content.split(' ')) == 1 else content.split(' ')[1:]
                 if len(args) < len(cmd.args):
                     return 'Wrong amount of parameters.'
@@ -87,7 +49,9 @@ class CommandHandler(object):
                     'channel':message.channel,
                     'args':args,
                     'bot':client,
-                    'voice':self.bot_voice
+                    'reddit':reddit,
+                    'voice':self.bot_voice,
+                    'player':self.audio_player
                 }
                 upermission = 0
                 for r in data['author'].roles:
@@ -96,12 +60,14 @@ class CommandHandler(object):
                             upermission = i
                             break
                 if upermission >= cmd.permission:
-                    await cmd.on_exec(data)
+                    rdata = await cmd.on_exec(data)
+                    self.bot_voice = rdata['voice']
+                    self.audio_player = rdata['player']
                     return False # no issues running command
                 return 'Permission Denied.'
             except KeyError as err:
                 if 'help' in content.split(' ')[0]:
-                    for n in self.cmds:
+                    for n in sorted(self.cmds):
                         c = self.cmds[n]
                         s = '- %s%s ' % (self.prefix, c.name)
                         for a in c.args:
@@ -110,6 +76,11 @@ class CommandHandler(object):
                         await client.send_message(message.channel, s)
                     return False
                 return 'Command not found.'
+
+    async def on_heartbeat(self, uptime, interval):
+        pass
+
+
 
 
 
