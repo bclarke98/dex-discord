@@ -99,7 +99,7 @@ class DiscordBot(object):
         await self.client.wait_until_ready()
         while not self.client.is_closed:
             self.uptime += self.interval
-            await self.chandler.on_heartbeat(self.uptime, self.interval)
+            await self.chandler.on_heartbeat(self.uptime, self.interval, self.client)
             if int(self.uptime) % 30 == 0:
                 self.logger.save_stats()
                 self.logger.save_logs()

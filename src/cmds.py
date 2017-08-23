@@ -1,4 +1,5 @@
 import src.empty as empty
+import time
 from src.commands import *
 
 
@@ -35,7 +36,9 @@ class CommandHandler(object):
             'syt':cmdsearchyoutube.CommandSearchYoutube(),
             'ri':cmdredditimg.CommandRedditImage(),
             'ayt':cmdaliasyoutube.CommandAliasYoutube(),
+            'jail':cmdjail.CommandJail(),
         }
+        self.jail = {}  # 'username': [int(duration), time(jail_start_time), channel_id]
  
     async def check_exec(self, client, reddit, message):
         if message.author.bot:
@@ -55,12 +58,14 @@ class CommandHandler(object):
                     'msg':message,
                     'author':message.author,
                     'channel':message.channel,
+                    'server':message.channel.server,
                     'args':args,
                     'bot':client,
                     'reddit':reddit,
                     'voice':self.bot_voice,
                     'player':self.audio_player,
-                    'cmds':self.cmds
+                    'cmds':self.cmds,
+                    'jail':self.jail
                 }
                 upermission = 0
                 for r in data['author'].roles:
@@ -72,6 +77,7 @@ class CommandHandler(object):
                     rdata = await cmd.on_exec(data)
                     self.bot_voice = rdata['voice']
                     self.audio_player = rdata['player']
+                    self.jail = rdata['jail']
                     return False # no issues running command
                 return 'Permission Denied.'
             except KeyError as err:
@@ -87,10 +93,15 @@ class CommandHandler(object):
                     return False
                 return 'Command not found.'
 
-    async def on_heartbeat(self, uptime, interval):
-        pass
-
-
+    async def on_heartbeat(self, uptime, interval, client):
+        for u in list(self.jail.keys()):
+            if time.time() - self.jail[u][1] >= self.jail[u][0]:
+                ochannel = self.jail[u][2]
+                juser = ochannel.server.get_member_named(u)
+                await client.remove_roles(juser, self.cmds['jail'].jailedrole)
+                await client.server_voice_state(juser, mute=False, deafen=False)
+                await client.move_member(juser, ochannel)
+                del self.jail[u]
 
 
 
