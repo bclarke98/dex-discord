@@ -87,6 +87,12 @@ class DiscordBot(object):
 
     async def on_ready(self):
         print('READY!')
+        msgs = []
+        for s in self.client.servers:
+            msgs.append(await self.client.send_message(s.default_channel, "The superior second version of the D3X Discord Bot is online."))
+        await asyncio.sleep(5)
+        for m in msgs:
+            await self.client.delete_message(m)
 
     async def on_message(self, message):
         if not message.author.bot:
