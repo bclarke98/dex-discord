@@ -28,6 +28,10 @@ def est_time():
     return str(hr) + utcn[2:]
 
 
+def uptime_str(uptime):
+    return 'Days: ' + str(int(uptime // 86400)) + '  Hours: ' + str(int(uptime // 3600) % 24) + '  Minutes: ' + str(int(uptime / 60) % 60) + '  Seconds: ' + str(int(uptime) % 60)
+
+
 class CommandLog(object):
     def __init__(self, user):
         self.user = user

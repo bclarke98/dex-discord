@@ -37,8 +37,10 @@ class CommandHandler(object):
             'ri':cmdredditimg.CommandRedditImage(),
             'ayt':cmdaliasyoutube.CommandAliasYoutube(),
             'jail':cmdjail.CommandJail(),
+            'uptime':cmduptime.CommandUptime(),
         }
         self.jail = {}  # 'username': [int(duration), time(jail_start_time), channel_id]
+        self.uptime = 0
  
     async def check_exec(self, client, reddit, message):
         if message.author.bot:
@@ -65,7 +67,8 @@ class CommandHandler(object):
                     'voice':self.bot_voice,
                     'player':self.audio_player,
                     'cmds':self.cmds,
-                    'jail':self.jail
+                    'jail':self.jail,
+                    'uptime':self.uptime,
                 }
                 upermission = 0
                 for r in data['author'].roles:
@@ -94,6 +97,7 @@ class CommandHandler(object):
                 return 'Command not found.'
 
     async def on_heartbeat(self, uptime, interval, client):
+        self.uptime = uptime
         for u in list(self.jail.keys()):
             if time.time() - self.jail[u][1] >= self.jail[u][0]:
                 ochannel = self.jail[u][2]
