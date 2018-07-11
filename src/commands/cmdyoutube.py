@@ -12,6 +12,7 @@ class CommandYoutube(Command):
                 data['voice'] = await data['bot'].join_voice_channel(data['author'].voice.voice_channel)
                 data['player'] = await data['voice'].create_ytdl_player(self.link if self.link else data['args'][0])
                 data['player'].start()
+                await send_message('Playing youtube video: ' + str(self.link if self.link else data['args'][0]), data, -1)
             else:
                 await send_message('You must be in a voice channel to use this command.', data)
         except Exception as ex:

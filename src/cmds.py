@@ -38,6 +38,8 @@ class CommandHandler(object):
             'ayt':cmdaliasyoutube.CommandAliasYoutube(),
             'jail':cmdjail.CommandJail(),
             'uptime':cmduptime.CommandUptime(),
+            'pause':cmdaudiopause.CommandAudioPause(),
+            'resume':cmdaudioresume.CommandAudioResume()
         }
         self.jail = {}  # 'username': [int(duration), time(jail_start_time), channel_id]
         self.uptime = 0
