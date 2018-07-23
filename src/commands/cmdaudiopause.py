@@ -10,6 +10,7 @@ class CommandAudioPause(Command):
             if data['author'].voice.voice_channel:
                 if data['player'] and data['player'].is_playing():
                     data['player'].pause()
+                    data['audioembed'].paused = True
                 await send_message('Audio Paused.', data, -1)
             else:
                 await send_message('You must be in a voice channel to use this command.', data)

@@ -1,1 +1,1 @@
-__all__ = ['cmdtest', 'cmdclean', 'cmdwipe', 'cmdspongebob', 'cmdfreeze', 'cmdaudiostop', 'cmdyoutube', 'cmdsearchyoutube', 'cmdredditimg', 'cmdaliasyoutube', 'cmdjail', 'cmduptime', 'cmdaudiopause', 'cmdaudioresume']
+__all__ = ['cmdtest', 'cmdclean', 'cmdwipe', 'cmdspongebob', 'cmdfreeze', 'cmdaudiostop', 'cmdyoutube', 'cmdsearchyoutube', 'cmdredditimg', 'cmdaliasyoutube', 'cmdjail', 'cmduptime', 'cmdaudiopause', 'cmdaudioresume', 'cmdnext']

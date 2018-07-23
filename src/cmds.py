@@ -1,10 +1,11 @@
 import src.empty as empty
+import src.audiodisplay as audiodisplay
 import time
 from src.commands import *
 
 
 class CommandHandler(object):
-    def __init__(self, prefix):
+    def __init__(self, prefix, client):
         self.permissions = [
             [], # default, should remain empty
             [], # donator/special user
@@ -39,9 +40,11 @@ class CommandHandler(object):
             'jail':cmdjail.CommandJail(),
             'uptime':cmduptime.CommandUptime(),
             'pause':cmdaudiopause.CommandAudioPause(),
-            'resume':cmdaudioresume.CommandAudioResume()
+            'resume':cmdaudioresume.CommandAudioResume(),
+            'next':cmdnext.CommandNext()
         }
         self.jail = {}  # 'username': [int(duration), time(jail_start_time), channel_id]
+        self.audioembed = audiodisplay.AudioDisplay(client)
         self.uptime = 0
  
     async def check_exec(self, client, reddit, message):
@@ -71,6 +74,7 @@ class CommandHandler(object):
                     'cmds':self.cmds,
                     'jail':self.jail,
                     'uptime':self.uptime,
+                    'audioembed':self.audioembed
                 }
                 upermission = 0
                 for r in data['author'].roles:
@@ -100,6 +104,7 @@ class CommandHandler(object):
 
     async def on_heartbeat(self, uptime, interval, client):
         self.uptime = uptime
+        await self.audioembed.on_tick()
         for u in list(self.jail.keys()):
             if time.time() - self.jail[u][1] >= self.jail[u][0]:
                 ochannel = self.jail[u][2]

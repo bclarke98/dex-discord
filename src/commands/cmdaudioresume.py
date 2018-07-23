@@ -10,6 +10,7 @@ class CommandAudioResume(Command):
             if data['author'].voice.voice_channel:
                 if data['player'] and not data['player'].is_playing():
                     data['player'].resume()
+                    data['audioembed'].paused = False
                 await send_message('Audio Resumed.', data, -1)
             else:
                 await send_message('You must be in a voice channel to use this command.', data)

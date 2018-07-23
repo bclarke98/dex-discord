@@ -9,7 +9,7 @@ import os
 import discord
 import src.bots as bots
 
-VERSION = '1.0.3'
+VERSION = '1.0.4'
 
 class DexManager:
     def __init__(self, client):

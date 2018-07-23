@@ -4,7 +4,6 @@ import asyncio
 import datetime
 import src.cmds as cmds
 
-
 class RedditBot(object):
     def __init__(self, details):
         self.reddit = praw.Reddit(client_id=details['rcid'], client_secret=details['rcs'], user_agent='dex-bot by /u/overlysalty', username='d3x-bot', password=details['rpw'])
@@ -75,7 +74,7 @@ class DiscordBot(object):
         self.version = details['version']
         self.token = details['btkn']
         self.client = details['client']
-        self.chandler = cmds.CommandHandler('!')
+        self.chandler = cmds.CommandHandler('!', self.client)
         self.reddit = RedditBot(details)
         self.logger = Log()
         self.uptime = 0      # uptime in seconds
@@ -89,7 +88,8 @@ class DiscordBot(object):
         print('READY!')
         msgs = []
         for s in self.client.servers:
-            msgs.append(await self.client.send_message(s.default_channel, "The superior second version of the D3X Discord Bot is online."))
+            # msgs.append(await self.client.send_message(s.default_channel, "The superior second version of the D3X Discord Bot is online."))
+            pass
         await asyncio.sleep(5)
         for m in msgs:
             await self.client.delete_message(m)
